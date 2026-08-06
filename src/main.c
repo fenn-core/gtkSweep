@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include "game.h"
 
 
@@ -8,7 +9,7 @@ int main(void) {
 
     generate_seed(&seed);
 
-    printf("%ld\n", seed);
+    printf("%" PRIu64 "\n", seed);
 
     return 0;
 }

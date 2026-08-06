@@ -4,6 +4,7 @@
 
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include "game.h"
 
@@ -23,7 +24,7 @@
 
 game_error_t generate_seed(uint64_t *seed_addr) {
     if (seed_addr == NULL) {
-        return NULLPTR_EXCEPTION;
+        return NULL_POINTER_ERROR;
     }
 
     uint64_t seed;
@@ -61,3 +62,83 @@ game_error_t generate_seed(uint64_t *seed_addr) {
 
     return GAME_ERROR_NONE;
 }
+
+
+game_error_t board_init(game_board_t *board,
+                        const size_t rows,
+                        const size_t cols,
+                        const size_t mine_count,
+                        const size_t time_limit) {
+
+    if (rows < 3 || cols < 3) {
+        return BOARD_DIMENSIONS_INVALID;
+    }
+
+    if (mine_count == 0 || mine_count >= rows * cols) {
+        return MINE_COUNT_INVALID;
+    }
+
+    if (time_limit <= 3) {
+        return TIME_LIMIT_INVALID;
+    }
+
+    game_cell_t *temp = malloc(rows * cols * sizeof(game_cell_t));
+
+    if (temp == NULL) {
+        return ALLOCATION_ERROR;
+    }
+
+    board->cell_buffer = temp;
+
+    board->rows = rows;
+    board->cols = cols;
+    board->mine_count = mine_count;
+    board->flags_placed = 0;
+    board->hidden_safe_cells = rows * cols;
+
+    board->time_limit = time_limit;
+    board->time_elapsed = 0;
+
+    board->game_state = GAME_READY;
+
+    return GAME_ERROR_NONE;
+
+}
+
+
+game_error_t board_destroy(game_board_t *board) {
+    free(board->cell_buffer);
+    board->cell_buffer = NULL;
+
+    board->rows = 0;
+    board->cols = 0;
+    board->mine_count = 0;
+    board->flags_placed = 0;
+    board->hidden_safe_cells = 0;
+
+    board->time_limit = 0;
+    board->time_elapsed = 0;
+
+    board->game_state = GAME_END;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

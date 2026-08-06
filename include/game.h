@@ -10,8 +10,12 @@
 
 typedef enum {
     GAME_ERROR_NONE,
-    NULLPTR_EXCEPTION,
+    BOARD_DIMENSIONS_INVALID,
+    MINE_COUNT_INVALID,
+    TIME_LIMIT_INVALID,
     SEED_GENERATION_ERROR,
+    ALLOCATION_ERROR,
+    NULL_POINTER_ERROR,
 } game_error_t;
 
 
@@ -21,6 +25,7 @@ typedef enum {
     GAME_WON,
     GAME_LOST,
     GAME_PAUSED,
+    GAME_END,
 } game_state_t;
 
 
@@ -40,6 +45,9 @@ typedef struct {
     size_t mine_count;
     size_t flags_placed;
     size_t hidden_safe_cells;
+
+    size_t time_limit;
+    size_t time_elapsed;
 
     game_state_t game_state;
 } game_board_t;
