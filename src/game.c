@@ -69,7 +69,6 @@ game_error_t board_init(game_board_t *board,
                         const size_t cols,
                         const size_t mine_count,
                         const size_t time_limit) {
-
     if (rows < 3 || cols < 3) {
         return BOARD_DIMENSIONS_INVALID;
     }
@@ -102,11 +101,13 @@ game_error_t board_init(game_board_t *board,
     board->game_state = GAME_READY;
 
     return GAME_ERROR_NONE;
-
 }
 
 
 game_error_t board_destroy(game_board_t *board) {
+    if (board == NULL || board->cell_buffer == NULL) {
+        return NULL_POINTER_ERROR;
+    }
     free(board->cell_buffer);
     board->cell_buffer = NULL;
 
@@ -121,20 +122,71 @@ game_error_t board_destroy(game_board_t *board) {
 
     board->game_state = GAME_END;
 
+    return GAME_ERROR_NONE;
 }
 
 
+game_error_t board_place_mines() {
+}
 
 
+game_error_t board_reset(game_board_t *board) {
+    if (board == NULL) {
+        return NULL_POINTER_ERROR;
+    }
+    board->flags_placed = 0;
+    board->hidden_safe_cells = board->rows * board->cols;
+    board->time_elapsed = 0;
+    board->game_state = GAME_READY;
+
+    return GAME_ERROR_NONE;
+}
 
 
+game_error_t on_cell_clicked(game_board_t *board, const size_t x, const size_t y) {
+    if (board == NULL || board->cell_buffer == NULL) {
+        return NULL_POINTER_ERROR;
+    }
+    if (x > board->cols || 1 > x || y > board->rows || 1 > y) {
+        return CLICK_INDEX_INVALID;
+    }
+
+    const size_t cell_idx = (x - 1) + (y - 1) * board->cols; // 1 based board indexing
+    board->cell_buffer[cell_idx].is_revealed = true;
+
+    if (board->cell_buffer[cell_idx].is_mine) {
+        board->game_state = GAME_LOST;
+    }
+
+    return GAME_ERROR_NONE;
+}
 
 
+game_error_t on_cell_right_clicked(game_board_t *board, const size_t x, const size_t y) {
+    if (board == NULL || board->cell_buffer == NULL) {
+        return NULL_POINTER_ERROR;
+    }
+
+    if (x > board->cols || 1 > x || y > board->rows || 1 > y) {
+        return CLICK_INDEX_INVALID;
+    }
+
+    const size_t cell_idx = (x - 1) + (y - 1) * board->cols; // 1 based board indexing
+    if (board->cell_buffer[cell_idx].is_revealed) {
+        return GAME_ERROR_NONE;
+    }
+
+    if (board->cell_buffer[cell_idx].is_flagged) {
+        board->cell_buffer[cell_idx].is_flagged = false;
+    }
+    else {
+        board->cell_buffer[cell_idx].is_flagged = true;
+    }
+
+    return GAME_ERROR_NONE;
 
 
-
-
-
+}
 
 
 
