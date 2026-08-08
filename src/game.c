@@ -185,6 +185,48 @@ game_error_t on_cell_right_clicked(game_board_t *board, const size_t x, const si
 
     return GAME_ERROR_NONE;
 
+}
+
+
+game_error_t on_cell_middle_clicked(game_board_t *board, const size_t x, const size_t y) {
+    if (board == NULL || board->cell_buffer == NULL) {
+        return NULL_POINTER_ERROR;
+    }
+
+    size_t cells_to_reveal[8] = {0};
+    int reveal_idx = 0;
+
+    const size_t cell_idx = (x - 1) + (y - 1) * board->cols;
+    int adj_flags = 0;
+
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            int64_t nx = (int64_t)x + dx;
+            int64_t ny = (int64_t)y + dy;
+            if (nx > 0 || ny > 0) {
+                const size_t adj_cell_idx =
+                    (nx - 1) + (ny - 1) * board->cols;
+
+                if (board->cell_buffer[adj_cell_idx].is_flagged) {
+                    adj_flags += 1;
+                }
+                else {
+                    cells_to_reveal[reveal_idx] = adj_cell_idx;
+                    reveal_idx++;
+                }
+            }
+        }
+    }
+
+    if (board->cell_buffer[cell_idx].is_flagged ||
+        board->cell_buffer[cell_idx].adjacent_mines != adj_flags) {
+
+        return GAME_ERROR_NONE;
+    }
+
+    for (int i = 0; i <= reveal_idx; ++i) {
+        board->cell_buffer[cells_to_reveal[i]].is_revealed = true;
+    }
 
 }
 
