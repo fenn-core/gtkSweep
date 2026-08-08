@@ -18,7 +18,7 @@ typedef enum {
 } game_error_t;
 
 
-void game_error_handler(game_error_t error_code) {
+static void game_error_handler(game_error_t error_code) {
     switch (error_code) {
 
         case SEED_GENERATION_ERROR:

@@ -3,6 +3,7 @@
 //
 
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include "error.h"
@@ -89,8 +90,13 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
 
 
 void generate_mine_indexes(size_t *mine_indexes, size_t cell_count, size_t mine_count) {
+    size_t *grid = malloc(sizeof(*mine_indexes) * cell_count);
+    if (grid == NULL) {
+        game_error_handler(NULL_POINTER_ERROR);
+    }
+
     for (size_t i = 0; i < cell_count; ++i) {
-        mine_indexes[i] = i;
+        grid[i] = i;
     }
 
     uint64_t seed;
@@ -102,8 +108,15 @@ void generate_mine_indexes(size_t *mine_indexes, size_t cell_count, size_t mine_
 
     for (size_t iters = 0; iters < mine_count; ++iters) {
         size_t mine_index = iters + pcg32_bounded_r(&rng, cell_count - iters);
-        size_t temp = mine_indexes[mine_index];
-        mine_indexes[mine_index] = mine_indexes[iters];
-        mine_indexes[iters] = temp;
+        size_t temp = grid[mine_index];
+        grid[mine_index] = grid[iters];
+        grid[iters] = temp;
     }
+
+    for (size_t j = 0; j < mine_count; ++j) {
+        mine_indexes[j] = grid[j];
+    }
+
+    free(grid);
+
 }

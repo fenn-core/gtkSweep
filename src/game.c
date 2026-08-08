@@ -90,7 +90,7 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
         board->cell_buffer[i].is_mine = false;
     }
 
-    size_t mine_indexes[cell_count];
+    size_t mine_indexes[mine_count];
     generate_mine_indexes(mine_indexes, cell_count, mine_count);
 
     for (size_t j = 0; j < mine_count; ++j) {
