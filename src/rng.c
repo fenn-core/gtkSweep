@@ -92,7 +92,7 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
 void generate_mine_indexes(size_t *mine_indexes, size_t cell_count, size_t mine_count) {
     size_t *grid = malloc(sizeof(*mine_indexes) * cell_count);
     if (grid == NULL) {
-        game_error_handler(NULL_POINTER_ERROR);
+        game_error_handler(ALLOCATION_ERROR);
     }
 
     for (size_t i = 0; i < cell_count; ++i) {

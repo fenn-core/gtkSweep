@@ -90,7 +90,11 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
         board->cell_buffer[i].is_mine = false;
     }
 
-    size_t mine_indexes[mine_count];
+    size_t *mine_indexes = malloc(sizeof(*mine_indexes) * mine_count);
+    if (mine_indexes == NULL) {
+        return ALLOCATION_ERROR;
+    }
+
     generate_mine_indexes(mine_indexes, cell_count, mine_count);
 
     for (size_t j = 0; j < mine_count; ++j) {
@@ -110,9 +114,11 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
                 int64_t nx = (int64_t) x + dx;
                 int64_t ny = (int64_t) y + dy;
 
-                if (nx <= 0 || ny <= 0) {
+                if (nx <= 0 || ny <= 0 ||
+                    nx > (int64_t)board->cols ||
+                    ny > (int64_t)board->rows) {
                     continue;
-                }
+                    }
 
                 const size_t adj_cell_idx =
                         (nx - 1) + (ny - 1) * board->cols;
@@ -125,6 +131,7 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
         board->cell_buffer[k].adjacent_mines = adj_mines;
     }
 
+    free(mine_indexes);
     return GAME_ERROR_NONE;
 
 }
