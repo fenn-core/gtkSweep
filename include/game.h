@@ -9,18 +9,6 @@
 
 
 typedef enum {
-    GAME_ERROR_NONE,
-    BOARD_DIMENSIONS_INVALID,
-    MINE_COUNT_INVALID,
-    TIME_LIMIT_INVALID,
-    CLICK_INDEX_INVALID,
-    SEED_GENERATION_ERROR,
-    ALLOCATION_ERROR,
-    NULL_POINTER_ERROR,
-} game_error_t;
-
-
-typedef enum {
     GAME_READY,
     GAME_RUNNING,
     GAME_WON,
@@ -52,9 +40,6 @@ typedef struct {
 
     game_state_t game_state;
 } game_board_t;
-
-
-game_error_t generate_seed(uint64_t *seed_addr);
 
 
 #endif //GTKSWEEP_GAME_H

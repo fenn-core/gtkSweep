@@ -7,6 +7,9 @@ add_executable(gtkSweep src/main.c
         src/game.c
         include/game.h
         include/game.h
+        src/rng.c
+        include/error.h
+        include/rng.h
 )
 
 target_include_directories(gtkSweep
