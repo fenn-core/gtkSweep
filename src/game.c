@@ -24,11 +24,12 @@ game_error_t board_init(game_board_t *board,
         return MINE_COUNT_INVALID;
     }
 
-    if (time_limit <= 3) {
+    if (time_limit < 3) {
         return TIME_LIMIT_INVALID;
     }
 
-    game_cell_t *temp = malloc(rows * cols * sizeof(game_cell_t));
+    const size_t cell_count = rows * cols;
+    game_cell_t *temp = malloc(cell_count * sizeof(*temp));
 
     if (temp == NULL) {
         return ALLOCATION_ERROR;
@@ -36,10 +37,10 @@ game_error_t board_init(game_board_t *board,
 
     board->cell_buffer = temp;
 
-    size_t cell_count = rows * cols;
     for (size_t i = 0; i < cell_count; ++i) {
         board->cell_buffer[i].is_flagged = false;
         board->cell_buffer[i].is_revealed = false;
+        board->cell_buffer[i].is_mine = false;
     }
 
     board->rows = rows;
@@ -79,15 +80,15 @@ game_error_t board_destroy(game_board_t *board) {
 }
 
 
-game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mine_count) {
-    if (board == NULL || board->cell_buffer == NULL) {
-        return NULL_POINTER_ERROR;
+game_error_t board_place_mines(game_board_t *board,
+                               const size_t cell_count,
+                               const size_t mine_count) {
+    if (board->game_state != GAME_READY) {
+        return GAME_STATE_INVALID;
     }
 
-    for (size_t i = 0; i < cell_count; ++i) {
-        board->cell_buffer[i].is_flagged = false;
-        board->cell_buffer[i].is_revealed = false;
-        board->cell_buffer[i].is_mine = false;
+    if (board == NULL || board->cell_buffer == NULL) {
+        return NULL_POINTER_ERROR;
     }
 
     size_t *mine_indexes = malloc(sizeof(*mine_indexes) * mine_count);
@@ -102,8 +103,8 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
     }
 
     for (size_t k = 0; k < cell_count; ++k) {
-        size_t x = (k % board->cols) + 1;
-        size_t y = (k / board->cols) + 1;
+        const size_t x = (k % board->cols) + 1;
+        const size_t y = (k / board->cols) + 1;
         int adj_mines = 0;
 
         for (int dx = -1; dx <= 1; ++dx) {
@@ -111,14 +112,14 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
                 if (dx == 0 && dy == 0)
                     continue;
 
-                int64_t nx = (int64_t) x + dx;
-                int64_t ny = (int64_t) y + dy;
+                const int64_t nx = (int64_t) x + dx;
+                const int64_t ny = (int64_t) y + dy;
 
                 if (nx <= 0 || ny <= 0 ||
-                    nx > (int64_t)board->cols ||
-                    ny > (int64_t)board->rows) {
+                    nx > (int64_t) board->cols ||
+                    ny > (int64_t) board->rows) {
                     continue;
-                    }
+                }
 
                 const size_t adj_cell_idx =
                         (nx - 1) + (ny - 1) * board->cols;
@@ -133,12 +134,11 @@ game_error_t board_place_mines(game_board_t *board, size_t cell_count, size_t mi
 
     free(mine_indexes);
     return GAME_ERROR_NONE;
-
 }
 
 
 game_error_t board_reset(game_board_t *board) {
-    if (board == NULL) {
+    if (board == NULL || board->cell_buffer == NULL) {
         return NULL_POINTER_ERROR;
     }
 
@@ -162,11 +162,17 @@ game_error_t on_cell_clicked(game_board_t *board, const size_t x, const size_t y
     if (board == NULL || board->cell_buffer == NULL) {
         return NULL_POINTER_ERROR;
     }
+
     if (x > board->cols || 1 > x || y > board->rows || 1 > y) {
         return CLICK_INDEX_INVALID;
     }
 
     const size_t cell_idx = (x - 1) + (y - 1) * board->cols; // 1 based board indexing
+    if (board->cell_buffer[cell_idx].is_flagged ||
+        board->cell_buffer[cell_idx].is_revealed) {
+        return GAME_ERROR_NONE;
+    }
+
     board->cell_buffer[cell_idx].is_revealed = true;
 
     if (board->cell_buffer[cell_idx].is_mine) {
@@ -194,8 +200,10 @@ game_error_t on_cell_right_clicked(game_board_t *board, const size_t x, const si
 
     if (board->cell_buffer[cell_idx].is_flagged) {
         board->cell_buffer[cell_idx].is_flagged = false;
+        board->flags_placed--;
     } else {
         board->cell_buffer[cell_idx].is_flagged = true;
+        board->flags_placed++;
     }
 
     return GAME_ERROR_NONE;
@@ -206,11 +214,16 @@ game_error_t on_cell_middle_clicked(game_board_t *board, const size_t x, const s
     if (board == NULL || board->cell_buffer == NULL) {
         return NULL_POINTER_ERROR;
     }
+    const size_t cell_idx = (x - 1) + (y - 1) * board->cols;
+
+    if (board->cell_buffer[cell_idx].is_flagged ||
+        board->cell_buffer[cell_idx].is_revealed) {
+
+        return GAME_ERROR_NONE;
+    }
 
     size_t cells_to_reveal[8] = {0};
     int reveal_idx = 0;
-
-    const size_t cell_idx = (x - 1) + (y - 1) * board->cols;
     int adj_flags = 0;
 
     for (int dx = -1; dx <= 1; ++dx) {
@@ -218,8 +231,8 @@ game_error_t on_cell_middle_clicked(game_board_t *board, const size_t x, const s
             if (dx == 0 && dy == 0)
                 continue;
 
-            int64_t nx = (int64_t) x + dx;
-            int64_t ny = (int64_t) y + dy;
+            const int64_t nx = (int64_t) x + dx;
+            const int64_t ny = (int64_t) y + dy;
 
             if (nx <= 0 || ny <= 0) {
                 continue;
@@ -237,12 +250,11 @@ game_error_t on_cell_middle_clicked(game_board_t *board, const size_t x, const s
         }
     }
 
-    if (board->cell_buffer[cell_idx].is_flagged ||
-        board->cell_buffer[cell_idx].adjacent_mines != adj_flags) {
+    if (board->cell_buffer[cell_idx].adjacent_mines != adj_flags) {
         return GAME_ERROR_NONE;
     }
 
-    for (int i = 0; i <= reveal_idx; ++i) {
+    for (int i = 0; i < reveal_idx; ++i) {
         board->cell_buffer[cells_to_reveal[i]].is_revealed = true;
     }
 
