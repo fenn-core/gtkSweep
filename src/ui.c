@@ -45,6 +45,14 @@ static game_error_t create_game_setup_page(GtkWidget **page_out) {
     }
     *page_out = NULL; // prevent stale returns in case of failure
 
+    const gint spacing = 1; // placeholder
+
+    GtkWidget *page_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
+    GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, spacing);
+
+    GtkWidget *start_button = gtk_button_new_with_label("Start");
+    GtkWidget *back_button = gtk_button_new_with_label("Back");
+
     GtkWidget *grid = gtk_grid_new();
 
     GtkWidget *width = gtk_spin_button_new_with_range(3, MAX_GRID_SIZE, 1);
@@ -74,7 +82,15 @@ static game_error_t create_game_setup_page(GtkWidget **page_out) {
     gtk_grid_attach(GTK_GRID(grid), seed, 1, 3, 1, 1);
 
 
-    *page_out = grid;
+    gtk_box_append(GTK_BOX(page_box), grid);
+
+    gtk_box_append(GTK_BOX(button_box), start_button);
+    gtk_box_append(GTK_BOX(button_box), back_button);
+
+    gtk_box_append(GTK_BOX(page_box), button_box);
+
+
+    *page_out = page_box;
     return GAME_ERROR_NONE;
 }
 
