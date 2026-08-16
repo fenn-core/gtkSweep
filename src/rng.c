@@ -31,16 +31,16 @@ static uint32_t pcg32_random_r(pcg32_random_t *rng) {
     uint64_t oldstate = rng->state;
     rng->state = oldstate * 6364136223846793005ULL + (rng->inc | 1);
     uint32_t xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
-    uint32_t rot = oldstate >> 59u;
+    const uint32_t rot = oldstate >> 59u;
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
 
-static uint32_t pcg32_bounded_r(pcg32_random_t *rng, uint32_t bound) {
-    uint32_t threshold = -bound % bound;
+static uint32_t pcg32_bounded_r(pcg32_random_t *rng, const uint32_t bound) {
+    const uint32_t threshold = -bound % bound;
 
     while (1) {
-        uint32_t r = pcg32_random_r(rng);
+        const uint32_t r = pcg32_random_r(rng);
         if (r >= threshold)
             return r % bound;
     }
@@ -53,13 +53,21 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
     }
 
     uint64_t seed;
+    uint8_t attempts = 0;
 
 #if defined(__linux__)
+
+    linux_seed_retry:
+
+    if (attempts > 5) {
+        return SEED_GENERATION_ERROR;
+    }
 
     const ssize_t result = getrandom(&seed, sizeof(seed), 0);
 
     if (result < 0 || result != sizeof(seed)) {
-        return SEED_GENERATION_ERROR;
+        attempts++;
+        goto linux_seed_retry;
     }
 
 #elif defined(__APPLE__)
@@ -68,13 +76,18 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
 
 #elif defined(_WIN32)
 
+    windows_seed_retry:
+    if (attempts > 5) {
+        return SEED_GENERATION_ERROR;
+    }
     if (!BCRYPT_SUCCESS(
         BCryptGenRandom(
             NULL,
             (PUCHAR) & seed,
             (ULONG) sizeof(seed),
             BCRYPT_USE_SYSTEM_PREFERRED_RNG))) {
-        return SEED_GENERATION_ERROR;
+        attempts++;
+        goto windows_seed_retry;
     }
 
 #else

@@ -25,6 +25,10 @@ void game_error_handler(const game_error_t error_code) {
             fprintf(stderr, "ERROR: invalid game state\n");
             break;
 
+        case SEED_GENERATION_ERROR:
+            fprintf(stderr, "FATAL: seed generation failed after 5 retries\n");
+            break;
+
         case ALLOCATION_ERROR:
             fprintf(stderr, "FATAL: failed to allocate memory\n");
             break;
