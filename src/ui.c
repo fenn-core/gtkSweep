@@ -7,13 +7,19 @@
 #include "error.h"
 
 
-static game_error_t create_main_menu_page(GtkWidget **page_out) {
-    if (page_out == NULL) {
+static void on_new_game_clicked(GtkButton *button, gpointer user_data) {
+    gtk_stack_set_visible_child_name(GTK_STACK(user_data), "game setup");
+
+}
+
+
+static game_error_t create_main_menu_page(GtkWidget **page_out, GtkStack *stack) {
+    if (page_out == NULL || stack == NULL) {
         return NULL_POINTER_ERROR;
     }
-    page_out = NULL;  // prevent stale returns in case of failure
+    *page_out = NULL; // prevent stale returns in case of failure
 
-    static gint spacing = 1;  // placeholder
+    const gint spacing = 1; // placeholder
 
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
     GtkWidget *label = gtk_label_new("gtkSweep");
@@ -22,18 +28,21 @@ static game_error_t create_main_menu_page(GtkWidget **page_out) {
     gtk_box_append(GTK_BOX(box), label);
     gtk_box_append(GTK_BOX(box), button);
 
+    g_signal_connect(button,
+                     "clicked",
+                     G_CALLBACK(on_new_game_clicked),
+                     stack);
+
     *page_out = box;
     return GAME_ERROR_NONE;
 }
 
 
 static game_error_t create_game_setup_page(GtkWidget **page_out) {
-
 }
 
 
 static game_error_t create_game_page(GtkWidget **page_out) {
-
 }
 
 
@@ -50,8 +59,7 @@ game_error_t ui_init(GtkApplication *app) {
     GtkWidget *game_setup_page = NULL;
     GtkWidget *game_page = NULL;
 
-
-    game_error_handler(create_main_menu_page(&main_menu_page));
+    game_error_handler(create_main_menu_page(&main_menu_page, stack));
     game_error_handler(create_game_setup_page(&game_setup_page));
     game_error_handler(create_game_page(&game_page));
 
@@ -59,19 +67,15 @@ game_error_t ui_init(GtkApplication *app) {
     gtk_stack_add_named(GTK_STACK(stack), game_setup_page, "game setup");
     gtk_stack_add_named(GTK_STACK(stack), game_page, "game");
 
-
     if (main_menu_page == NULL || game_setup_page == NULL
         || game_page == NULL) {
         return UI_CREATION_ERROR;
     }
 
 
-
     gtk_window_present(GTK_WINDOW(window));
-
 }
 
 
 game_error_t ui_show_page() {
-
 }
