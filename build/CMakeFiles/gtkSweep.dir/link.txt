@@ -1,1 +1,0 @@
-/usr/bin/cc -Wl,--dependency-file=CMakeFiles/gtkSweep.dir/link.d CMakeFiles/gtkSweep.dir/src/main.c.o CMakeFiles/gtkSweep.dir/src/game.c.o CMakeFiles/gtkSweep.dir/src/rng.c.o CMakeFiles/gtkSweep.dir/src/error.c.o CMakeFiles/gtkSweep.dir/src/ui.c.o -o gtkSweep

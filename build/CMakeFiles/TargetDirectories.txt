@@ -1,3 +1,0 @@
-/home/pusana/dev/projects/gtkSweep/build/CMakeFiles/gtkSweep.dir
-/home/pusana/dev/projects/gtkSweep/build/CMakeFiles/edit_cache.dir
-/home/pusana/dev/projects/gtkSweep/build/CMakeFiles/rebuild_cache.dir
