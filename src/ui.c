@@ -6,10 +6,11 @@
 #include "ui.h"
 #include "error.h"
 
+#define MAX_GRID_SIZE  256
+
 
 static void on_new_game_clicked(GtkButton *button, gpointer user_data) {
     gtk_stack_set_visible_child_name(GTK_STACK(user_data), "game setup");
-
 }
 
 
@@ -39,6 +40,42 @@ static game_error_t create_main_menu_page(GtkWidget **page_out, GtkStack *stack)
 
 
 static game_error_t create_game_setup_page(GtkWidget **page_out) {
+    if (page_out == NULL) {
+        return NULL_POINTER_ERROR;
+    }
+    *page_out = NULL; // prevent stale returns in case of failure
+
+    GtkWidget *grid = gtk_grid_new();
+
+    GtkWidget *width = gtk_spin_button_new_with_range(3, MAX_GRID_SIZE, 1);
+    GtkWidget *width_label = gtk_label_new("Width");
+
+    GtkWidget *height = gtk_spin_button_new_with_range(3, MAX_GRID_SIZE, 1);
+    GtkWidget *height_label = gtk_label_new("Height");
+
+    GtkWidget *mine_count =
+            gtk_spin_button_new_with_range(1, MAX_GRID_SIZE * MAX_GRID_SIZE - 1, 1);
+    GtkWidget *mine_label = gtk_label_new("Mines");
+
+    GtkWidget *seed = gtk_entry_new();
+    GtkWidget *seed_label = gtk_label_new("Seed");
+
+
+    gtk_grid_attach(GTK_GRID(grid), width_label, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), width, 1, 0, 1, 1);
+
+    gtk_grid_attach(GTK_GRID(grid), height_label, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), height, 1, 1, 1, 1);
+
+    gtk_grid_attach(GTK_GRID(grid), mine_label, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), mine_count, 1, 2, 1, 1);
+
+    gtk_grid_attach(GTK_GRID(grid), seed_label, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), seed, 1, 3, 1, 1);
+
+
+    *page_out = grid;
+    return GAME_ERROR_NONE;
 }
 
 
@@ -59,7 +96,7 @@ game_error_t ui_init(GtkApplication *app) {
     GtkWidget *game_setup_page = NULL;
     GtkWidget *game_page = NULL;
 
-    game_error_handler(create_main_menu_page(&main_menu_page, stack));
+    game_error_handler(create_main_menu_page(&main_menu_page, GTK_STACK(stack)));
     game_error_handler(create_game_setup_page(&game_setup_page));
     game_error_handler(create_game_page(&game_page));
 
