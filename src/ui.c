@@ -7,17 +7,17 @@
 #include "error.h"
 
 
-game_error_t create_main_menu_page(GtkWidget **page_out) {
+static game_error_t create_main_menu_page(GtkWidget **page_out) {
 
 }
 
 
-game_error_t create_game_setup_page(GtkWidget **page_out) {
+static game_error_t create_game_setup_page(GtkWidget **page_out) {
 
 }
 
 
-game_error_t create_game_page(GtkWidget **page_out) {
+static game_error_t create_game_page(GtkWidget **page_out) {
 
 }
 
@@ -31,14 +31,22 @@ game_error_t ui_init(GtkApplication *app) {
     GtkWidget *stack = gtk_stack_new();
     gtk_window_set_child(GTK_WINDOW(window), stack);
 
-    GtkWidget *main_menu = NULL;
+    GtkWidget *main_menu_page = NULL;
+    GtkWidget *game_setup_page = NULL;
     GtkWidget *game_page = NULL;
 
-    game_error_handler(create_main_menu_page(&main_menu));
-    game_error_handler(create_main_menu_page(&game_page));
-    
 
-    if (main_menu == NULL || game_page == NULL) {
+    game_error_handler(create_main_menu_page(&main_menu_page));
+    game_error_handler(create_game_setup_page(&game_setup_page));
+    game_error_handler(create_game_page(&game_page));
+
+    gtk_stack_add_named(GTK_STACK(stack), main_menu_page, "main menu");
+    gtk_stack_add_named(GTK_STACK(stack), game_setup_page, "game setup");
+    gtk_stack_add_named(GTK_STACK(stack), game_page, "game");
+
+
+    if (main_menu_page == NULL || game_setup_page == NULL
+        || game_page == NULL) {
         return UI_CREATION_ERROR;
     }
 
