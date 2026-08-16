@@ -8,7 +8,22 @@
 
 
 static game_error_t create_main_menu_page(GtkWidget **page_out) {
+    if (page_out == NULL) {
+        return NULL_POINTER_ERROR;
+    }
+    page_out = NULL;  // prevent stale returns in case of failure
 
+    static gint spacing = 1;  // placeholder
+
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
+    GtkWidget *label = gtk_label_new("gtkSweep");
+    GtkWidget *button = gtk_button_new_with_label("New Game");
+
+    gtk_box_append(GTK_BOX(box), label);
+    gtk_box_append(GTK_BOX(box), button);
+
+    *page_out = box;
+    return GAME_ERROR_NONE;
 }
 
 
