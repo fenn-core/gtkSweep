@@ -25,6 +25,10 @@ void game_error_handler(const game_error_t error_code) {
             fprintf(stderr, "ERROR: invalid game state\n");
             break;
 
+        case UI_CREATION_ERROR:
+            fprintf(stderr, "FATAL: failed to create ui page\n");
+            break;
+
         case SEED_GENERATION_ERROR:
             fprintf(stderr, "FATAL: seed generation failed after 5 retries\n");
             break;

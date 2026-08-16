@@ -1,0 +1,54 @@
+//
+// Created by pusana on 8/16/26.
+//
+
+#include "gtk/gtk.h"
+#include "ui.h"
+#include "error.h"
+
+
+game_error_t create_main_menu_page(GtkWidget **page_out) {
+
+}
+
+
+game_error_t create_game_setup_page(GtkWidget **page_out) {
+
+}
+
+
+game_error_t create_game_page(GtkWidget **page_out) {
+
+}
+
+
+game_error_t ui_init(GtkApplication *app) {
+    GtkWidget *window = gtk_application_window_new(app);
+
+    gtk_window_set_title(GTK_WINDOW(window), "gtkSweep");
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+
+    GtkWidget *stack = gtk_stack_new();
+    gtk_window_set_child(GTK_WINDOW(window), stack);
+
+    GtkWidget *main_menu = NULL;
+    GtkWidget *game_page = NULL;
+
+    game_error_handler(create_main_menu_page(&main_menu));
+    game_error_handler(create_main_menu_page(&game_page));
+    
+
+    if (main_menu == NULL || game_page == NULL) {
+        return UI_CREATION_ERROR;
+    }
+
+
+
+    gtk_window_present(GTK_WINDOW(window));
+
+}
+
+
+game_error_t ui_show_page() {
+
+}

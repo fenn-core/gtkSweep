@@ -18,6 +18,8 @@ add_executable(gtkSweep src/main.c
         src/error.c
         src/ui.c
         src/ui.c
+        src/ui.c
+        include/ui.h
 )
 
 target_include_directories(gtkSweep
