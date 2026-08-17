@@ -2,7 +2,8 @@
 // Created by pusana on 8/16/26.
 //
 
-#include "gtk/gtk.h"
+#include <stdlib.h>
+#include <gtk/gtk.h>
 #include "ui.h"
 #include "error.h"
 
@@ -53,6 +54,7 @@ static game_error_t create_main_menu_page(GtkWidget **page_out, GtkStack *stack)
 
 static void on_start_clicked(GtkButton *button, gpointer user_data) {
     ui_setup_t *setup = user_data;
+    uint64_t *seed = NULL;
 
     size_t width =
         gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(setup->width));
@@ -61,7 +63,30 @@ static void on_start_clicked(GtkButton *button, gpointer user_data) {
     size_t mine_count =
         gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(setup->mine_count));
 
-    const char *seed =  gtk_editable_get_text(GTK_EDITABLE(setup->seed));
+    const char *seed_str =  gtk_editable_get_text(GTK_EDITABLE(setup->seed));
+
+
+    if (mine_count >= width * height) {
+        // reject
+    }
+    if (seed_str == NULL) {
+        uint64_t seed = ;
+    }
+    else {
+        uint64_t seed = strtoull(seed_str, NULL, 0);
+    }
+
+
+}
+
+
+static void on_back_clicked(GtkButton *button, gpointer user_data) {
+    ui_setup_t *setup = user_data;
+
+    gtk_stack_set_visible_child_name(
+        GTK_STACK(setup->stack),
+        "main menu"
+    );
 }
 
 

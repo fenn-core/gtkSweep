@@ -6,6 +6,7 @@
 #define GTKSWEEP_GAME_H
 
 #include <stdbool.h>
+#include "error.h"
 
 
 typedef enum {
@@ -40,6 +41,34 @@ typedef struct {
 
     game_state_t game_state;
 } game_board_t;
+
+
+game_error_t board_init(game_board_t *board,
+                        size_t rows,
+                        size_t cols,
+                        size_t mine_count,
+                        size_t time_limit);
+
+
+game_error_t board_destroy(game_board_t *board);
+
+
+game_error_t board_place_mines(game_board_t *board,
+                               size_t cell_count,
+                               size_t mine_count,
+                               uint64_t *seed);
+
+
+game_error_t board_reset(game_board_t *board);
+
+
+game_error_t on_cell_clicked(game_board_t *board, size_t x, size_t y);
+
+
+game_error_t on_cell_right_clicked(game_board_t *board, size_t x, size_t y);
+
+
+game_error_t on_cell_middle_clicked(game_board_t *board, size_t x, size_t y);
 
 
 #endif //GTKSWEEP_GAME_H

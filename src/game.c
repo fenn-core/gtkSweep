@@ -82,7 +82,8 @@ game_error_t board_destroy(game_board_t *board) {
 
 game_error_t board_place_mines(game_board_t *board,
                                const size_t cell_count,
-                               const size_t mine_count) {
+                               const size_t mine_count,
+                               uint64_t *seed) {
     if (board->game_state != GAME_READY) {
         return GAME_STATE_INVALID;
     }
@@ -96,7 +97,7 @@ game_error_t board_place_mines(game_board_t *board,
         return ALLOCATION_ERROR;
     }
 
-    generate_mine_indexes(mine_indexes, cell_count, mine_count);
+    *seed = generate_mine_indexes(mine_indexes, cell_count, mine_count);
 
     for (size_t j = 0; j < mine_count; ++j) {
         board->cell_buffer[mine_indexes[j]].is_mine = true;
