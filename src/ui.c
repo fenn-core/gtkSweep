@@ -9,6 +9,18 @@
 #define MAX_GRID_SIZE  256
 
 
+typedef struct {
+    GtkWidget *stack;
+    GtkWidget *width;
+    GtkWidget *height;
+    GtkWidget *mine_count;
+    GtkWidget *seed;
+} ui_setup_t;
+
+
+static ui_setup_t ui_setup;
+
+
 static void on_new_game_clicked(GtkButton *button, gpointer user_data) {
     gtk_stack_set_visible_child_name(GTK_STACK(user_data), "game setup");
 }
@@ -39,7 +51,21 @@ static game_error_t create_main_menu_page(GtkWidget **page_out, GtkStack *stack)
 }
 
 
-static game_error_t create_game_setup_page(GtkWidget **page_out) {
+static void on_start_clicked(GtkButton *button, gpointer user_data) {
+    ui_setup_t *setup = user_data;
+
+    size_t width =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(setup->width));
+    size_t height =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(setup->height));
+    size_t mine_count =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(setup->mine_count));
+
+    const char *seed =  gtk_editable_get_text(GTK_EDITABLE(setup->seed));
+}
+
+
+static game_error_t create_game_setup_page(GtkWidget **page_out, GtkStack *stack) {
     if (page_out == NULL) {
         return NULL_POINTER_ERROR;
     }
@@ -68,6 +94,11 @@ static game_error_t create_game_setup_page(GtkWidget **page_out) {
     GtkWidget *seed = gtk_entry_new();
     GtkWidget *seed_label = gtk_label_new("Seed");
 
+    ui_setup.width = width;
+    ui_setup.height = height;
+    ui_setup.mine_count = mine_count;
+    ui_setup.seed = seed;
+    ui_setup.stack = GTK_WIDGET(stack);
 
     gtk_grid_attach(GTK_GRID(grid), width_label, 0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), width, 1, 0, 1, 1);
@@ -113,7 +144,7 @@ game_error_t ui_init(GtkApplication *app) {
     GtkWidget *game_page = NULL;
 
     game_error_handler(create_main_menu_page(&main_menu_page, GTK_STACK(stack)));
-    game_error_handler(create_game_setup_page(&game_setup_page));
+    game_error_handler(create_game_setup_page(&game_setup_page, GTK_STACK(stack)));
     game_error_handler(create_game_page(&game_page));
 
     gtk_stack_add_named(GTK_STACK(stack), main_menu_page, "main menu");
