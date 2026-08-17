@@ -57,7 +57,7 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
 
 #if defined(__linux__)
 
-    linux_seed_retry:
+linux_seed_retry:
 
     if (attempts > 5) {
         return SEED_GENERATION_ERROR;
@@ -76,7 +76,7 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
 
 #elif defined(_WIN32)
 
-    windows_seed_retry:
+windows_seed_retry:
     if (attempts > 5) {
         return SEED_GENERATION_ERROR;
     }
@@ -102,7 +102,7 @@ static game_error_t generate_seed(uint64_t *seed_addr) {
 }
 
 
-void generate_mine_indexes(size_t *mine_indexes, size_t cell_count, size_t mine_count) {
+uint64_t generate_mine_indexes(size_t *mine_indexes, size_t cell_count, size_t mine_count) {
     size_t *grid = malloc(sizeof(*mine_indexes) * cell_count);
     if (grid == NULL) {
         game_error_handler(ALLOCATION_ERROR);
@@ -131,5 +131,5 @@ void generate_mine_indexes(size_t *mine_indexes, size_t cell_count, size_t mine_
     }
 
     free(grid);
-
+    return seed;
 }
